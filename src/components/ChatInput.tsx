@@ -1,4 +1,10 @@
 export function ChatInput({ input, setInput, sendMessage, loading }: { input: string; setInput: (value: string) => void; sendMessage: () => void; loading: boolean }) {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !loading) {
+      sendMessage();
+    }
+  };
+
   return (
     <div className="flex gap-2">
       <input
@@ -8,8 +14,8 @@ export function ChatInput({ input, setInput, sendMessage, loading }: { input: st
                    focus:ring-blue-500 dark:focus:ring-blue-400"
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-        placeholder="Type a message..."
+        onKeyDown={handleKeyDown}
+        placeholder={loading ? "Waiting for response..." : "Type a message..."}
       />
       <button 
         className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg 

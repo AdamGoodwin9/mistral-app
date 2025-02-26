@@ -34,9 +34,23 @@ export default function Chat() {
         body: JSON.stringify({ messages: [...messages, userMessage] }),
       });
       const data = await response.json();
-      const botMessage = { role: "bot", text: data.reply };
-      setMessages((prev) => [...prev, botMessage]);
+      
+      if (data.error) {
+        const errorMessage = { 
+          role: "bot", 
+          text: "Sorry, I encountered an error. Please try again in a moment." 
+        };
+        setMessages((prev) => [...prev, errorMessage]);
+      } else {
+        const botMessage = { role: "bot", text: data.reply };
+        setMessages((prev) => [...prev, botMessage]);
+      }
     } catch (error) {
+      const errorMessage = { 
+        role: "bot", 
+        text: "Sorry, I encountered an error. Please try again in a moment." 
+      };
+      setMessages((prev) => [...prev, errorMessage]);
       console.error("Error fetching response", error);
     }
 
