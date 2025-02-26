@@ -8,7 +8,7 @@ export async function POST(request: Request) {
   const { messages } = await request.json();
 
   try {
-    const chatResponse = await client.chat.complete({
+    const stream = await client.chat.stream({
       model: "mistral-large-latest",
       messages: messages.map((msg: { role: string; text: string }) => ({
         role: msg.role === "bot" ? "assistant" : "user",
@@ -16,11 +16,27 @@ export async function POST(request: Request) {
       }))
     });
 
-    if (!chatResponse.choices?.[0]?.message?.content) {
-      return NextResponse.json({ error: "Invalid response from Mistral API" }, { status: 500 });
-    }
+    const encoder = new TextEncoder();
+    const customStream = new ReadableStream({
+      async start(controller) {
+        for await (const chunk of stream) {
+          const text = chunk.data.choices[0]?.delta?.content || "";
+          if (text) {
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`));
+          }
+        }
+        controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+        controller.close();
+      }
+    });
 
-    return NextResponse.json({ reply: chatResponse.choices[0].message.content });
+    return new Response(customStream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
+    });
   } catch (error) {
     console.error("Error calling Mistral API", error);
     return NextResponse.json({ error: "Failed to fetch response" }, { status: 500 });

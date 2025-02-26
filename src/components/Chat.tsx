@@ -9,6 +9,7 @@ export default function Chat() {
   const [messages, setMessages] = useState<{ role: string; text: string }[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [currentResponse, setCurrentResponse] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -17,15 +18,21 @@ export default function Chat() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, loading]);
+  }, [messages, loading, currentResponse]);
 
   const sendMessage = async () => {
     if (!input.trim()) return;
 
+    // Save the previous response before any other state changes
+    if (currentResponse) {
+      setMessages(prev => [...prev, { role: 'bot', text: currentResponse }]);
+    }
+
     const userMessage = { role: "user", text: input };
-    setMessages((prev) => [...prev, userMessage]);
+    setMessages(prev => [...prev, userMessage]);
     setInput("");
     setLoading(true);
+    setCurrentResponse("");
 
     try {
       const response = await fetch("/api/chat", {
@@ -33,25 +40,47 @@ export default function Chat() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: [...messages, userMessage] }),
       });
-      const data = await response.json();
-      
-      if (data.error) {
-        const errorMessage = { 
-          role: "bot", 
-          text: "Sorry, I encountered an error. Please try again in a moment." 
-        };
-        setMessages((prev) => [...prev, errorMessage]);
-      } else {
-        const botMessage = { role: "bot", text: data.reply };
-        setMessages((prev) => [...prev, botMessage]);
+
+      if (!response.ok) throw new Error('Stream error');
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+
+      if (!reader) throw new Error('No reader available');
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+        
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(5);
+            if (data === '[DONE]') {
+              setMessages(prev => [...prev, { role: 'bot', text: currentResponse }]);
+              setCurrentResponse("");
+              break;
+            }
+            try {
+              const { text } = JSON.parse(data);
+              setCurrentResponse(prev => prev + text);
+            } catch (e) {
+              // Ignore JSON parse errors for [DONE] marker
+              if (!data.includes('DONE')) {
+                console.error('Error parsing chunk:', e);
+              }
+            }
+          }
+        }
       }
     } catch (error) {
-      const errorMessage = { 
-        role: "bot", 
-        text: "Sorry, I encountered an error. Please try again in a moment." 
-      };
-      setMessages((prev) => [...prev, errorMessage]);
-      console.error("Error fetching response", error);
+      console.error("Error fetching response:", error);
+      setMessages(prev => [...prev, {
+        role: "bot",
+        text: "Sorry, I encountered an error. Please try again in a moment."
+      }]);
     }
 
     setLoading(false);
@@ -64,7 +93,9 @@ export default function Chat() {
           {messages.map((msg, index) => (
             <Message key={index} role={msg.role} text={msg.text} />
           ))}
-          {loading && <TypingIndicator />}
+          {currentResponse && (
+            <Message role="bot" text={currentResponse} />
+          )}
           <div ref={messagesEndRef} />
         </div>
         <ChatInput input={input} setInput={setInput} sendMessage={sendMessage} loading={loading} />
