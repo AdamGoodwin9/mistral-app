@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 const MODELS = [
   { id: 'mistral-tiny', name: 'Mistral Tiny' },
   { id: 'mistral-small', name: 'Mistral Small' },
