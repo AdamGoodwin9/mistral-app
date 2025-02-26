@@ -5,11 +5,11 @@ const API_KEY = process.env.MISTRAL_API_KEY;
 const client = new Mistral({ apiKey: API_KEY });
 
 export async function POST(request: Request) {
-  const { messages } = await request.json();
+  const { messages, model } = await request.json();
 
   try {
     const stream = await client.chat.stream({
-      model: "mistral-large-latest",
+      model: model || "mistral-large-latest",
       messages: messages.map((msg: { role: string; text: string }) => ({
         role: msg.role === "bot" ? "assistant" : "user",
         content: msg.text

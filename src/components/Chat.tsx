@@ -3,12 +3,14 @@
 import { useState, useRef, useEffect } from "react";
 import { Message } from "@/components/Message";
 import { ChatInput } from "@/components/ChatInput";
+import { ModelSelector } from "@/components/ModelSelector";
 
 export default function Chat() {
   const [messages, setMessages] = useState<{ role: string; text: string }[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [currentResponse, setCurrentResponse] = useState("");
+  const [selectedModel, setSelectedModel] = useState("mistral-large-latest");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -37,7 +39,10 @@ export default function Chat() {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [...messages, userMessage] }),
+        body: JSON.stringify({ 
+          messages: [...messages, userMessage],
+          model: selectedModel 
+        }),
       });
 
       if (!response.ok) throw new Error('Stream error');
@@ -88,7 +93,10 @@ export default function Chat() {
   return (
     <div className="fixed inset-0 flex items-center justify-center p-4">
       <div className="w-full h-full max-w-2xl bg-white dark:bg-gray-800 shadow-xl rounded-xl p-6">
-        <div className="h-[calc(100%-5rem)] overflow-y-auto border-b border-gray-200 dark:border-gray-700 pb-4 mb-4">
+        <div className="mb-4">
+          <ModelSelector selectedModel={selectedModel} onModelChange={setSelectedModel} />
+        </div>
+        <div className="h-[calc(100%-8rem)] overflow-y-auto border-b border-gray-200 dark:border-gray-700 pb-4 mb-4">
           {messages.map((msg, index) => (
             <Message key={index} role={msg.role} text={msg.text} />
           ))}

@@ -1,36 +1,122 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mistral Chat Application
 
-## Getting Started
+A Next.js-based chat application that uses the Mistral AI API to create an interactive chatbot experience. The application supports multiple Mistral models and features a responsive design with dark mode support.
 
-First, run the development server:
+## Features
+
+- Real-time streaming responses
+- Multiple Mistral model support (Tiny, Small, Medium, Large)
+- Dark mode support
+- Responsive design for mobile and desktop
+- TypeScript implementation
+- Modern UI with Tailwind CSS
+
+## Prerequisites
+
+- Node.js 18.x or higher
+- A Mistral AI API key ([Get one here](https://console.mistral.ai/))
+
+## Setup
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/AdamGoodwin9/mistral-app.git
+cd mistral-app
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Create a `.env` file in the root directory and add your Mistral AI API key:
+
+```bash
+MISTRAL_API_KEY=your_api_key_here
+```
+
+4. Start the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+5. Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Usage
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Select a Mistral model from the dropdown menu at the top of the chat interface:
+   - Mistral Tiny: Fastest, suitable for simple queries
+   - Mistral Small: Good balance of speed and capability
+   - Mistral Medium: Enhanced comprehension and response quality
+   - Mistral Large: Most capable, best for complex tasks
 
-## Learn More
+2. Type your message in the input field at the bottom of the chat interface
 
-To learn more about Next.js, take a look at the following resources:
+3. Press Enter or click the Send button to submit your message
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+4. Watch as the AI responds in real-time with streaming text
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project Structure
 
-## Deploy on Vercel
+- `/src/app`: Next.js app router configuration and global styles
+- `/src/components`: React components
+- `/src/app/api`: API routes for handling Mistral AI communication
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Key Components
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `Chat.tsx`: Main chat interface and logic
+- `ModelSelector.tsx`: Model selection dropdown
+- `Message.tsx`: Individual message display
+- `ChatInput.tsx`: User input interface
+
+## Environment Variables
+
+Required environment variables:
+
+```bash
+MISTRAL_API_KEY=your_api_key_here
+```
+
+## Development
+
+To run the development server with hot reload:
+
+```bash
+npm run dev
+```
+
+To build for production:
+
+```bash
+npm run build
+```
+
+To start the production server:
+
+```bash
+npm run start
+```
+
+## Technologies Used
+
+- Next.js 15.1.7
+- React 19
+- TypeScript
+- Tailwind CSS
+- Mistral AI API
+- Server-Sent Events (SSE) for streaming
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is open source and available under the MIT License.
