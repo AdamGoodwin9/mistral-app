@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Message } from "@/components/Message";
 import { ChatInput } from "@/components/ChatInput";
-import { TypingIndicator } from "@/components/TypingIndicator";
 
 export default function Chat() {
   const [messages, setMessages] = useState<{ role: string; text: string }[]>([]);
@@ -87,9 +86,9 @@ export default function Chat() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4">
-      <div className="w-full max-w-2xl bg-white dark:bg-gray-800 shadow-xl rounded-xl p-6">
-        <div className="h-[500px] overflow-y-auto border-b border-gray-200 dark:border-gray-700 pb-4 mb-4">
+    <div className="fixed inset-0 flex items-center justify-center p-4">
+      <div className="w-full h-full max-w-2xl bg-white dark:bg-gray-800 shadow-xl rounded-xl p-6">
+        <div className="h-[calc(100%-5rem)] overflow-y-auto border-b border-gray-200 dark:border-gray-700 pb-4 mb-4">
           {messages.map((msg, index) => (
             <Message key={index} role={msg.role} text={msg.text} />
           ))}
